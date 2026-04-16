@@ -27,7 +27,7 @@
           emacsPackages = mod.programs.emacs.extraPackages;
           lspPackages = mod.home.packages;
 
-          baseEmacs = if pkgs.stdenv.isDarwin then pkgs.emacs else pkgs.emacs-unstable;
+          baseEmacs = if pkgs.stdenv.isDarwin then pkgs.emacs else pkgs.emacs-pgtk;
 
           configPkg = pkgs.runCommand "nixmacs-config" {} ''
             mkdir -p $out/share/emacs/site-lisp

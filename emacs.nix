@@ -18,7 +18,7 @@
 
   programs.emacs = {
     enable = true;
-    package = pkgs.emacs-unstable; 
+    package = pkgs.emacs-pgtk;
 
     extraPackages = epkgs: with epkgs; [
       # Evil mode (Vim bindings)
@@ -87,6 +87,11 @@
       (setq display-line-numbers-type 'relative)
       (global-display-line-numbers-mode t)
 
+
+      (require 'nix-mode)
+      (add-hook 'nix-mode-hook 'lsp)
+
+      (add-hook 'c-mode-hook 'lsp)
       ;; Theme
       (load-theme 'doom-one t)
 

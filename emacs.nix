@@ -12,7 +12,9 @@
     pyright     # Python LSP
     typescript-language-server # JS/TS LSP
     nixd        # Nix LSP
-    mpv         # Media player backend for EMMS
+    mpv         # Media player backend for EMMS & ready-player
+    ffmpeg      # Metadata extraction (ffprobe) for ready-player
+    ffmpegthumbnailer # Video thumbnails for ready-player
   ];
 
   programs.emacs = {
@@ -62,6 +64,7 @@
 
       # Multimedia
       emms
+      ready-player
     ];
 
     extraConfig = ''
@@ -200,6 +203,10 @@
       (emms-all)
       (setq emms-player-list '(emms-player-mpv))
       (setq emms-info-functions '(emms-info-native))
+
+      ;; --- Ready Player (media file major mode) ---
+      (require 'ready-player)
+      (ready-player-mode +1)
     '';
   };
 }

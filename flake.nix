@@ -44,7 +44,7 @@
             buildInputs = [ pkgs.makeWrapper ];
             postBuild = ''
               wrapProgram $out/bin/emacs \
-                --prefix PATH : ${pkgs.lib.makeBinPath (lspPackages ++ [ pkgs.mpv ])} \
+                --prefix PATH : ${pkgs.lib.makeBinPath (lspPackages ++ [ pkgs.mpv pkgs.ffmpeg pkgs.ffmpegthumbnailer ])} \
                 --add-flags "--load ${configPkg}/share/emacs/site-lisp/default.el"
             '';
           };

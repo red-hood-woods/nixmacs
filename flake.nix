@@ -36,7 +36,7 @@
           # Auto-load our extraConfig by dropping it into site-start.el in the site-lisp directory
           configPkg = pkgs.runCommand "nixmacs-config" {} ''
             mkdir -p $out/share/emacs/site-lisp
-            cp ${pkgs.writeText "site-start.el" emacsConfig} $out/share/emacs/site-lisp/site-start.el
+            cp ${pkgs.writeText "default.el" emacsConfig} $out/share/emacs/site-lisp/default.el
           '';
 
           # Build Emacs with our extraPackages + configPkg
@@ -49,9 +49,10 @@
             paths = [ emacsWithConfig ];
             buildInputs = [ pkgs.makeWrapper ];
             postBuild = ''
-              # Wrap the emacs binary so it has access to the LSP executables
+              # Wrap the emacs binary so it has access to the LSP executables AND explicitly loads the config
               wrapProgram $out/bin/emacs \
-                --prefix PATH : ${pkgs.lib.makeBinPath lspPackages}
+                --prefix PATH : ${pkgs.lib.makeBinPath lspPackages} \
+                --add-flags "--load ${configPkg}/share/emacs/site-lisp/default.el"
             '';
           };
         }

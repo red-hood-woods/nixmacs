@@ -12,14 +12,13 @@
     pyright     # Python LSP
     typescript-language-server # JS/TS LSP
     nixd        # Nix LSP
-    mpv         # Media player backend for EMMS & ready-player
-    ffmpeg      # Metadata extraction (ffprobe) for ready-player
-    ffmpegthumbnailer # Video thumbnails for ready-player
+    mpv         # Media player backend for EMMS
+    ffmpeg      # Metadata tools
   ];
 
   programs.emacs = {
     enable = true;
-    package = pkgs.emacs-pgtk; 
+    package = pkgs.emacs-unstable; 
 
     extraPackages = epkgs: with epkgs; [
       # Evil mode (Vim bindings)
@@ -64,7 +63,9 @@
 
       # Multimedia
       emms
-      ready-player
+
+      # Window manager & Xwidgets
+      exwm
     ];
 
     extraConfig = ''
@@ -204,9 +205,56 @@
       (setq emms-player-list '(emms-player-mpv))
       (setq emms-info-functions '(emms-info-native))
 
-      ;; --- Ready Player (media file major mode) ---
-      (require 'ready-player)
-      (ready-player-mode +1)
+      ;; --- EXWM (Emacs X Window Manager) ---
+      (require 'exwm)
+      (require 'exwm-config)
+      ;; Set workspace count
+      (setq exwm-workspace-number 4)
+      ;; Make class name the buffer name
+      (add-hook 'exwm-update-class-hook
+                (lambda () (exwm-workspace-rename-buffer exwm-class-name)))
+      ;; Global keybindings for EXWM
+      (setq exwm-input-global-keys
+            `(([?\s-r] . exwm-reset)
+              ([?\s-w] . exwm-workspace-switch)
+              ,@(mapcar (lambda (i)
+                          `(,(kbd (format "s-%d" i)) .
+                            (lambda () (interactive)
+                              (exwm-workspace-switch-create ,i))))
+                        (number-sequence 0 9))))
+      ;; Line-mode keybindings (passthrough to Emacs)
+      (setq exwm-input-simulation-keys
+            '(([?\C-b] . [left])
+              ([?\C-f] . [right])
+              ([?\C-p] . [up])
+              ([?\C-n] . [down])
+              ([?\C-a] . [home])
+              ([?\C-e] . [end])))
+
+      ;; --- EXWM & Media helpers ---
+
+      ;; Video helper: Launch mpv as an EXWM window
+      (defun nixmacs-watch-video (file)
+        "Watch a video file in mpv (embedded via EXWM)."
+        (interactive "fVideo file: ")
+        (start-process "mpv" nil "mpv" file))
+
+      ;; Xwidget video helper (if supported by build)
+      (defun nixmacs-xwidget-play-video (url)
+        "Play a video URL in an xwidget-webkit buffer."
+        (interactive "sVideo URL: ")
+        (condition-case nil
+            (let ((buf (xwidget-webkit-new-session url)))
+              (message "Playing video in xwidget buffer: %s" url))
+          (error (message "Xwidgets not supported in this build. Try EXWM watch-video instead."))))
+
+      ;; SPC m bindings
+      (my-leader-def
+        "m"  '(:ignore t :which-key "media")
+        "mv" '(nixmacs-watch-video :which-key "watch video (EXWM/mpv)")
+        "mw" '(nixmacs-xwidget-play-video :which-key "watch URL (Xwidget)"))
+
+      (exwm-enable)
     '';
   };
 }

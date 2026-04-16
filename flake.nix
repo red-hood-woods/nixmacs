@@ -27,7 +27,7 @@
           emacsPackages = mod.programs.emacs.extraPackages;
           lspPackages = mod.home.packages;
 
-          baseEmacs = if pkgs.stdenv.isDarwin then pkgs.emacs else pkgs.emacs-pgtk;
+          baseEmacs = if pkgs.stdenv.isDarwin then pkgs.emacs else pkgs.emacs-unstable;
 
           configPkg = pkgs.runCommand "nixmacs-config" {} ''
             mkdir -p $out/share/emacs/site-lisp
@@ -44,7 +44,7 @@
             buildInputs = [ pkgs.makeWrapper ];
             postBuild = ''
               wrapProgram $out/bin/emacs \
-                --prefix PATH : ${pkgs.lib.makeBinPath (lspPackages ++ [ pkgs.mpv pkgs.ffmpeg pkgs.ffmpegthumbnailer ])} \
+                --prefix PATH : ${pkgs.lib.makeBinPath (lspPackages ++ [ pkgs.mpv pkgs.ffmpeg ])} \
                 --add-flags "--load ${configPkg}/share/emacs/site-lisp/default.el"
             '';
           };

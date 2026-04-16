@@ -68,6 +68,10 @@
       (set-fringe-mode 10)        ; Give some breathing room
       (menu-bar-mode -1)          ; Disable the menu bar
 
+      ;; Transparency (90%)
+      (set-frame-parameter nil 'alpha-background 90)
+      (add-to-list 'default-frame-alist '(alpha-background . 90))
+
       ;; Line numbers
       (setq display-line-numbers-type 'relative)
       (global-display-line-numbers-mode t)

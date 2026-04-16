@@ -58,7 +58,7 @@
     ];
 
     extraConfig = ''
-      ;; --- Spacemacs-like Declarative Config ---
+      ;; --- Config ---
 
       ;; --- Basic UI ---
       (setq inhibit-startup-message t)
@@ -68,7 +68,7 @@
       (set-fringe-mode 10)        ; Give some breathing room
       (menu-bar-mode -1)          ; Disable the menu bar
 
-      ;; Transparency (90%)
+      ;; Transparency
       (set-frame-parameter nil 'alpha-background 90)
       (add-to-list 'default-frame-alist '(alpha-background . 90))
 
@@ -90,7 +90,7 @@
       (setq dashboard-items '((recents  . 5)
                               (projects . 5)))
 
-      ;; --- Evil Mode (Vim bindings) ---
+      ;; --- Evil Mode Unholy ---
       (setq evil-want-integration t)
       (setq evil-want-keybinding nil)
       (setq evil-want-C-u-scroll t)
@@ -132,7 +132,7 @@
         :prefix "SPC"
         :global-prefix "C-SPC")
 
-      ;; The Spacemacs "SPC" bindings
+      ;; "SPC" bindings
       (my-leader-def
         "SPC" '(execute-extended-command :which-key "M-x")
         

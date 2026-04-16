@@ -12,6 +12,7 @@
     pyright     # Python LSP
     typescript-language-server # JS/TS LSP
     nixd        # Nix LSP
+    mpv         # Media player backend for EMMS
   ];
 
   programs.emacs = {
@@ -55,6 +56,12 @@
       nix-mode
       js2-mode
       typescript-mode
+
+      # Matrix client
+      ement
+
+      # Multimedia
+      emms
     ];
 
     extraConfig = ''
@@ -184,6 +191,15 @@
       (add-hook 'js2-mode-hook 'lsp)
       (require 'typescript-mode)
       (add-hook 'typescript-mode-hook 'lsp)
+
+      ;; --- Ement.el (Matrix Client) ---
+      (require 'ement)
+
+      ;; --- EMMS (Emacs Multimedia System) ---
+      (require 'emms-setup)
+      (emms-all)
+      (setq emms-player-list '(emms-player-mpv))
+      (setq emms-info-functions '(emms-info-native))
     '';
   };
 }

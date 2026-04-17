@@ -14,6 +14,7 @@
     nixd        # Nix LSP
     mpv         # Media player backend for EMMS
     ffmpeg      # Metadata tools
+    cava        # Audio visualizer backend
   ];
 
   programs.emacs = {
@@ -31,12 +32,11 @@
       all-the-icons # Note: run 'M-x all-the-icons-install-fonts' once in Emacs
       dashboard
       
-      # Completion & Navigation (Modern Helm/Ivy alternative)
-      vertico
-      orderless
-      marginalia
-      consult
-      corfu # In-buffer completion
+      # Completion & Navigation (Ivy stack)
+      ivy
+      counsel
+      swiper
+      ivy-posframe
       
       # Key discovery (like Spacemacs)
       which-key
@@ -63,6 +63,17 @@
 
       # Multimedia
       emms
+
+      # Tree Explorer
+      treemacs
+      treemacs-evil
+      treemacs-projectile
+      treemacs-magit
+      lsp-treemacs
+
+      # Visualizers & Fun
+      elcava
+      fireplace
     ];
 
     extraConfig = ''
@@ -96,6 +107,8 @@
       (require 'dashboard)
       (dashboard-setup-startup-hook)
       (setq dashboard-center-content t)
+      (setq dashboard-banner-logo-title " Helllooooo Alice!")
+      (setq dashboard-startup-banner "/home/alice/nixmacs/assets/logo.png")
       (setq dashboard-items '((recents  . 5)
                               (projects . 5)))
 
@@ -115,21 +128,38 @@
       (which-key-mode)
       (setq which-key-idle-delay 0.3)
 
-      ;; --- Vertico & Consult (Navigation & Search) ---
-      (require 'vertico)
-      (vertico-mode)
-      
-      (require 'marginalia)
-      (marginalia-mode)
+      ;; --- Ivy & Counsel (Navigation & Search) ---
+      (require 'ivy)
+      (ivy-mode 1)
+      (require 'counsel)
+      (counsel-mode 1)
+      (require 'swiper)
 
-      (require 'orderless)
-      (setq completion-styles '(orderless basic)
-            completion-category-defaults nil
-            completion-category-overrides '((file (styles partial-completion))))
+      ;; --- Ivy-Posframe (Centered Whoom) ---
+      (require 'ivy-posframe)
+      (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
+      (ivy-posframe-mode 1)
 
       ;; --- Projectile ---
       (require 'projectile)
       (projectile-mode +1)
+
+      ;; --- Treemacs ---
+      (require 'treemacs)
+      (require 'treemacs-evil)
+      (require 'treemacs-projectile)
+      (require 'treemacs-magit)
+      (require 'lsp-treemacs)
+      (setq treemacs-no-png-images t) ;; use all-the-icons
+      (treemacs-follow-mode t)
+      (treemacs-filewatch-mode t)
+      (treemacs-fringe-indicator-mode 'always)
+      (setq treemacs-width 35)
+      (setq treemacs-is-never-other-window t)
+      (setq treemacs-silent-refresh t)
+      (setq treemacs-silent-filewatch t)
+      (when treemacs-python-executable
+        (treemacs-git-commit-diff-mode t))
 
       ;; --- Keybindings (General.el) ---
       (require 'general)
@@ -143,17 +173,17 @@
 
       ;; "SPC" bindings
       (my-leader-def
-        "SPC" '(execute-extended-command :which-key "M-x")
+        "SPC" '(counsel-M-x :which-key "M-x")
         
         ;; Files
         "f"   '(:ignore t :which-key "files")
-        "ff"  '(find-file :which-key "find file")
+        "ff"  '(counsel-find-file :which-key "find file")
         "fs"  '(save-buffer :which-key "save file")
-        "fr"  '(consult-recent-file :which-key "recent files")
+        "fr"  '(counsel-recentf :which-key "recent files")
         
         ;; Buffers
         "b"   '(:ignore t :which-key "buffers")
-        "bb"  '(consult-buffer :which-key "switch buffer")
+        "bb"  '(ivy-switch-buffer :which-key "switch buffer")
         "bd"  '(kill-current-buffer :which-key "kill buffer")
         
         ;; Windows
@@ -174,6 +204,15 @@
         ;; Git
         "g"   '(:ignore t :which-key "git")
         "gs"  '(magit-status :which-key "magit status")
+
+        ;; Trees / Explorer
+        "e"   '(:ignore t :which-key "explorer")
+        "ee"  '(treemacs :which-key "toggle treemacs")
+        "ef"  '(treemacs-find-file :which-key "find current file")
+        "ep"  '(treemacs-projectile :which-key "projectile tree")
+        "es"  '(lsp-treemacs-symbols :which-key "lsp symbols")
+        "ei"  '(lsp-treemacs-implementations :which-key "lsp implementations")
+        "er"  '(lsp-treemacs-references :which-key "lsp references")
       )
 
       ;; --- Language Support (Haskell, Nix, C, Python, JS) ---
@@ -213,6 +252,17 @@
       (my-leader-def
         "m"  '(:ignore t :which-key "media")
         "mv" '(nixmacs-watch-video :which-key "watch video (mpv)"))
+      ;; --- Visualizers & Fun ---
+      (require 'elcava)
+      (setq elcava-executable "cava")
+      
+      (require 'fireplace)
+
+      ;; --- Keybindings for visualizers ---
+      (my-leader-def
+        "a"   '(:ignore t :which-key "apps/fun")
+        "av"  '(elcava :which-key "audio visualizer (elcava)")
+        "af"  '(fireplace :which-key "cozy fireplace"))
     '';
   };
 }

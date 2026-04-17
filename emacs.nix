@@ -72,7 +72,6 @@
       lsp-treemacs
 
       # Visualizers & Fun
-      elcava
       fireplace
     ];
 
@@ -253,15 +252,11 @@
         "m"  '(:ignore t :which-key "media")
         "mv" '(nixmacs-watch-video :which-key "watch video (mpv)"))
       ;; --- Visualizers & Fun ---
-      (require 'elcava)
-      (setq elcava-executable "cava")
-      
       (require 'fireplace)
 
       ;; --- Keybindings for visualizers ---
       (my-leader-def
         "a"   '(:ignore t :which-key "apps/fun")
-        "av"  '(elcava :which-key "audio visualizer (elcava)")
         "af"  '(fireplace :which-key "cozy fireplace"))
     '';
   };

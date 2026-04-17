@@ -73,6 +73,9 @@
 
       # Visualizers & Fun
       fireplace
+
+      # Terminal
+      vterm
     ];
 
     extraConfig = ''
@@ -212,6 +215,10 @@
         "es"  '(lsp-treemacs-symbols :which-key "lsp symbols")
         "ei"  '(lsp-treemacs-implementations :which-key "lsp implementations")
         "er"  '(lsp-treemacs-references :which-key "lsp references")
+
+        ;; Terminal
+        "t"   '(:ignore t :which-key "terminal")
+        "tt"  '(vterm :which-key "vterm")
       )
 
       ;; --- Language Support (Haskell, Nix, C, Python, JS) ---
@@ -258,6 +265,10 @@
       (my-leader-def
         "a"   '(:ignore t :which-key "apps/fun")
         "af"  '(fireplace :which-key "cozy fireplace"))
+
+      ;; --- Vterm ---
+      (require 'vterm)
+      (setq vterm-max-scrollback 5000)
     '';
   };
 }

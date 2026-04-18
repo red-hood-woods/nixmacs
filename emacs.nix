@@ -89,6 +89,9 @@
                   (setq gc-cons-threshold (* 2 1024 1024)) ; 2mb after startup
                   (message "Emacs loaded in %s" (emacs-init-time))))
 
+      ;; --- Theme & UI early load ---
+      (load-theme 'doom-one t)
+
       ;; --- Basic UI ---
       (setq inhibit-startup-message t)
       (scroll-bar-mode -1)        ; Disable visible scrollbar
@@ -106,16 +109,13 @@
       (global-display-line-numbers-mode t)
 
 
-      ;; Theme
-      (load-theme 'doom-one t)
-
       ;; Modeline
       (doom-modeline-mode 1)
       (setq doom-modeline-height 35)
 
       ;; Dashboard
       (use-package dashboard
-        :ensure t
+        :demand t
         :config
         (dashboard-setup-startup-hook)
         (setq dashboard-center-content t)
@@ -128,6 +128,7 @@
 
       ;; --- Evil Mode Unholy ---
       (use-package evil
+        :demand t
         :init
         (setq evil-want-integration t)
         (setq evil-want-keybinding nil)
@@ -148,6 +149,7 @@
 
       ;; --- Which-Key ---
       (use-package which-key
+        :demand t
         :init (which-key-mode)
         :config
         (setq which-key-idle-delay 0.3))

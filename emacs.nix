@@ -41,6 +41,7 @@
       # Key discovery (like Spacemacs)
       which-key
       general
+      use-package # Added for lazy loading
       
       # Project management & Git
       projectile
@@ -81,6 +82,13 @@
     extraConfig = ''
       ;; --- Config ---
 
+      ;; Startup Performance
+      (setq gc-cons-threshold (* 50 1024 1024)) ; 50mb during startup
+      (add-hook 'emacs-startup-hook
+                (lambda ()
+                  (setq gc-cons-threshold (* 2 1024 1024)) ; 2mb after startup
+                  (message "Emacs loaded in %s" (emacs-init-time))))
+
       ;; --- Basic UI ---
       (setq inhibit-startup-message t)
       (scroll-bar-mode -1)        ; Disable visible scrollbar
@@ -106,62 +114,120 @@
       (setq doom-modeline-height 35)
 
       ;; Dashboard
-      (require 'dashboard)
-      (dashboard-setup-startup-hook)
-      (setq dashboard-center-content t)
-      (setq dashboard-banner-logo-title " Helllooooo Alice!")
-      (setq dashboard-startup-banner "/home/alice/nixmacs/assets/logo.png")
-      (setq dashboard-items '((recents  . 5)
-                              (projects . 5)))
+      (use-package dashboard
+        :ensure t
+        :config
+        (dashboard-setup-startup-hook)
+        (setq dashboard-center-content t)
+        (setq dashboard-banner-logo-title " Helllooooo Alice!")
+        (setq dashboard-startup-banner "/home/alice/nixmacs/assets/logo.png")
+        (setq dashboard-items '((recents  . 5)
+                                (projects . 5)))
+        ;; Ensure dashboard is the initial buffer
+        (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*"))))
 
       ;; --- Evil Mode Unholy ---
-      (setq evil-want-integration t)
-      (setq evil-want-keybinding nil)
-      (setq evil-want-C-u-scroll t)
-      (setq evil-want-C-i-jump t)
-      (require 'evil)
-      (evil-mode 1)
+      (use-package evil
+        :init
+        (setq evil-want-integration t)
+        (setq evil-want-keybinding nil)
+        (setq evil-want-C-u-scroll t)
+        (setq evil-want-C-i-jump t)
+        :config
+        (evil-mode 1))
 
-      (require 'evil-collection)
-      (evil-collection-init)
+      (use-package evil-collection
+        :after evil
+        :config
+        (evil-collection-init))
+
+      ;; --- Magit ---
+      (use-package magit
+        :commands magit-status
+        :bind ("C-x g" . magit-status))
 
       ;; --- Which-Key ---
-      (require 'which-key)
-      (which-key-mode)
-      (setq which-key-idle-delay 0.3)
+      (use-package which-key
+        :init (which-key-mode)
+        :config
+        (setq which-key-idle-delay 0.3))
 
       ;; --- Ivy & Counsel (Navigation & Search) ---
-      (require 'ivy)
-      (ivy-mode 1)
-      (require 'counsel)
-      (counsel-mode 1)
-      (require 'swiper)
+      (use-package ivy
+        :diminish
+        :bind (("C-s" . swiper)
+               :map ivy-minibuffer-map
+               ("C-l" . ivy-done)
+               ("C-j" . ivy-next-line)
+               ("C-k" . ivy-previous-line)
+               :map ivy-switch-buffer-map
+               ("C-k" . ivy-previous-line)
+               ("C-l" . ivy-done)
+               ("C-d" . ivy-switch-buffer-kill)
+               :map ivy-reverse-i-search-map
+               ("C-k" . ivy-previous-line)
+               ("C-d" . ivy-reverse-i-search-kill))
+        :config
+        (ivy-mode 1))
+
+      (use-package counsel
+        :bind (("M-x" . counsel-M-x)
+               ("C-x C-f" . counsel-find-file)
+               :map minibuffer-local-map
+               ("C-r" . 'counsel-minibuffer-history))
+        :config
+        (setq ivy-initial-inputs-alist nil) ; No initial ^ in counsel
+        (counsel-mode 1))
+
+      (use-package swiper)
 
       ;; --- Ivy-Posframe (Centered Whoom) ---
-      (require 'ivy-posframe)
-      (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
-      (ivy-posframe-mode 1)
+      (use-package ivy-posframe
+        :after ivy
+        :config
+        (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
+        (ivy-posframe-mode 1))
 
       ;; --- Projectile ---
-      (require 'projectile)
-      (projectile-mode +1)
+      (use-package projectile
+        :diminish projectile-mode
+        :config (projectile-mode)
+        :bind-keymap
+        ("C-c p" . projectile-command-map)
+        :init
+        (when (file-directory-p "~/projects")
+          (setq projectile-project-search-path '("~/projects")))
+        (setq projectile-switch-project-action #'projectile-dired))
 
       ;; --- Treemacs ---
-      (require 'treemacs)
-      (require 'treemacs-evil)
-      (require 'treemacs-projectile)
-      (require 'treemacs-magit)
-      (require 'lsp-treemacs)
-      (setq treemacs-no-png-images t) ;; use all-the-icons
-      (treemacs-follow-mode t)
-      (treemacs-filewatch-mode t)
-      (treemacs-fringe-indicator-mode 'always)
-      (setq treemacs-width 35)
-      (setq treemacs-is-never-other-window t)
-      (setq treemacs-silent-refresh t)
-      (setq treemacs-silent-filewatch t)
-      (when treemacs-python-executable
-        (treemacs-git-commit-diff-mode t))
+      (use-package treemacs
+        :defer t
+        :init
+        (with-eval-after-load 'winum
+          (define-key winum-keymap (kbd "M-0") 'treemacs-select-window))
+        :config
+        (setq treemacs-no-png-images t) ;; use all-the-icons
+        (treemacs-follow-mode t)
+        (treemacs-filewatch-mode t)
+        (treemacs-fringe-indicator-mode 'always)
+        (setq treemacs-width 35)
+        (setq treemacs-is-never-other-window t)
+        (setq treemacs-silent-refresh t)
+        (setq treemacs-silent-filewatch t)
+        (when treemacs-python-executable
+          (treemacs-git-commit-diff-mode t)))
+
+      (use-package treemacs-evil
+        :after (treemacs evil))
+
+      (use-package treemacs-projectile
+        :after (treemacs projectile))
+
+      (use-package treemacs-magit
+        :after (treemacs magit))
+
+      (use-package lsp-treemacs
+        :after (treemacs lsp-mode))
 
       ;; --- Keybindings (General.el) ---
       (require 'general)
@@ -221,32 +287,59 @@
         "tt"  '(vterm :which-key "vterm")
       )
 
-      ;; --- Language Support (Haskell, Nix, C, Python, JS) ---
-      (require 'haskell-mode)
-      (add-hook 'haskell-mode-hook 'lsp)
-      (add-hook 'haskell-literate-mode-hook 'lsp)
+      ;; --- LSP Mode ---
+      (use-package lsp-mode
+        :commands (lsp lsp-deferred)
+        :init
+        (setq lsp-keymap-prefix "C-c l")
+        :config
+        (lsp-enable-which-key-integration t))
 
-      (require 'nix-mode)
-      (add-hook 'nix-mode-hook 'lsp)
+      (use-package lsp-ui
+        :commands lsp-ui-mode)
 
-      (add-hook 'c-mode-hook 'lsp)
-      (add-hook 'c++-mode-hook 'lsp)
-      
-      (add-hook 'python-mode-hook 'lsp)
+      (use-package company
+        :config
+        (setq company-idle-delay 0.0)
+        (setq company-minimum-prefix-length 1)
+        (global-company-mode t))
 
-      (require 'js2-mode)
-      (add-hook 'js2-mode-hook 'lsp)
-      (require 'typescript-mode)
-      (add-hook 'typescript-mode-hook 'lsp)
+      ;; --- Language Support ---
+      (use-package haskell-mode
+        :mode "\\.hs\\'"
+        :hook (haskell-mode . lsp-deferred))
+
+      (use-package lsp-haskell
+        :after (lsp-mode haskell-mode))
+
+      (use-package nix-mode
+        :mode "\\.nix\\'"
+        :hook (nix-mode . lsp-deferred))
+
+      (use-package js2-mode
+        :mode "\\.js\\'"
+        :hook (js2-mode . lsp-deferred))
+
+      (use-package typescript-mode
+        :mode "\\.ts\\'"
+        :hook (typescript-mode . lsp-deferred))
+
+      (add-hook 'c-mode-hook 'lsp-deferred)
+      (add-hook 'c++-mode-hook 'lsp-deferred)
+      (add-hook 'python-mode-hook 'lsp-deferred)
 
       ;; --- Ement.el (Matrix Client) ---
-      (require 'ement)
+      (use-package ement
+        :commands ement-connect)
 
       ;; --- EMMS (Emacs Multimedia System) ---
-      (require 'emms-setup)
-      (emms-all)
-      (setq emms-player-list '(emms-player-mpv))
-      (setq emms-info-functions '(emms-info-native))
+      (use-package emms
+        :commands (emms emms-play-file)
+        :config
+        (require 'emms-setup)
+        (emms-all)
+        (setq emms-player-list '(emms-player-mpv))
+        (setq emms-info-functions '(emms-info-native)))
 
       ;; --- Media helpers (External Window) ---
       (defun nixmacs-watch-video (file)
@@ -258,8 +351,10 @@
       (my-leader-def
         "m"  '(:ignore t :which-key "media")
         "mv" '(nixmacs-watch-video :which-key "watch video (mpv)"))
+
       ;; --- Visualizers & Fun ---
-      (require 'fireplace)
+      (use-package fireplace
+        :commands fireplace)
 
       ;; --- Keybindings for visualizers ---
       (my-leader-def
@@ -267,8 +362,10 @@
         "af"  '(fireplace :which-key "cozy fireplace"))
 
       ;; --- Vterm ---
-      (require 'vterm)
-      (setq vterm-max-scrollback 5000)
+      (use-package vterm
+        :commands vterm
+        :config
+        (setq vterm-max-scrollback 5000))
     '';
   };
 }

@@ -90,7 +90,7 @@
                   (message "Emacs loaded in %s" (emacs-init-time))))
 
       ;; --- Theme & UI early load ---
-      (load-theme 'doom-rose-pine t)
+      (load-theme 'doom-one t)
 
       ;; --- Basic UI ---
       (setq inhibit-startup-message t)

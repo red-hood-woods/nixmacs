@@ -30,6 +30,7 @@
       doom-themes
       doom-modeline
       all-the-icons # Note: run 'M-x all-the-icons-install-fonts' once in Emacs
+      centaur-tabs
       dashboard
       
       # Completion & Navigation (Ivy stack)
@@ -112,6 +113,22 @@
       ;; Modeline
       (doom-modeline-mode 1)
       (setq doom-modeline-height 35)
+
+      ;; --- Centaur Tabs ---
+      (use-package centaur-tabs
+        :demand t
+        :config
+        (centaur-tabs-mode 1)
+        (setq centaur-tabs-style "bar"
+              centaur-tabs-height 32
+              centaur-tabs-set-icons t
+              centaur-tabs-set-bar 'left
+              centaur-tabs-set-modified-marker t
+              centaur-tabs-show-navigation-buttons t)
+        (centaur-tabs-headline-match)
+        :bind
+        ("C-<prior>" . centaur-tabs-backward)
+        ("C-<next>" . centaur-tabs-forward))
 
       ;; Dashboard
       (use-package dashboard
@@ -254,6 +271,8 @@
         ;; Buffers
         "b"   '(:ignore t :which-key "buffers")
         "bb"  '(ivy-switch-buffer :which-key "switch buffer")
+        "bn"  '(centaur-tabs-forward :which-key "next tab")
+        "bp"  '(centaur-tabs-backward :which-key "prev tab")
         "bd"  '(kill-current-buffer :which-key "kill buffer")
         
         ;; Windows

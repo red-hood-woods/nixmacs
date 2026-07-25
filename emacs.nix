@@ -102,7 +102,7 @@
       fireplace
 
       # Terminal
-      ghostel
+      vterm
 
       # Org-roam (knowledge graph / Zettelkasten)
       org-roam

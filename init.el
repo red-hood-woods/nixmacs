@@ -355,16 +355,9 @@
 
 ;;; Terminal + TRAMP
 
-(use-package ghostel
-  :commands (ghostel ghostel-project ghostel-project-list-buffers)
-  :bind (("C-x m" . ghostel)
-         :map project-prefix-map
-         ("m" . ghostel-project)
-         ("M" . ghostel-project-list-buffers))
-  :config
-  (add-to-list 'project-switch-commands '(ghostel-project "Ghostel") t)
-  (add-to-list 'project-switch-commands '(ghostel-project-list-buffers "Ghostel buffers") t)
-  (add-to-list 'ghostel-eval-cmds '("magit-status-setup-buffer" magit-status-setup-buffer)))
+(use-package vterm
+  :commands vterm
+  :bind ("C-x m" . vterm))
 
 (use-package tramp
   :defer t
@@ -505,7 +498,7 @@
 
   ;; t — terminal
   (define-key my-leader-map   (kbd "t") 'my-terminal-map)
-  (define-key my-terminal-map (kbd "t") 'ghostel)
+  (define-key my-terminal-map (kbd "t") 'vterm)
 
   ;; n — notes / org-roam
   (define-key my-leader-map      (kbd "n") 'my-notes-map)

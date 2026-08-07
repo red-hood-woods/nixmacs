@@ -11,7 +11,9 @@
 
 ;;; Theme + basic UI
 
-(load-theme 'ef-elea-dark t)
+(add-to-list 'custom-theme-load-path (file-name-directory (or load-file-name buffer-file-name (expand-file-name "init.el"))))
+(add-to-list 'load-path (file-name-directory (or load-file-name buffer-file-name (expand-file-name "init.el"))))
+(load-theme 'flutterice t)
 
 (setq inhibit-startup-message t)
 (scroll-bar-mode -1)
@@ -94,7 +96,11 @@
   (vertico-mode 1)
   ;; Cycle at the edges of the candidate list
   (setq vertico-cycle t))
-
+;; Elcord
+(use-package elcord
+  :ensure t
+  :config
+  (elcord-mode 1))
 ;; Orderless: space-separated component matching
 (use-package orderless
   :demand t
@@ -223,6 +229,15 @@
 (use-package typescript-mode
   :mode "\\.ts\\'"
   :hook (typescript-mode . lsp-deferred))
+
+(use-package rust-mode
+  :mode "\\.rs\\'"
+  :hook (rust-mode . lsp-deferred))
+
+(use-package rustic
+  :after rust-mode
+  :config
+  (setq rustic-lsp-client 'lsp-mode))
 
 (add-hook 'c-mode-hook     'lsp-deferred)
 (add-hook 'c++-mode-hook   'lsp-deferred)

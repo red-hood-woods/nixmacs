@@ -12,6 +12,7 @@
     pyright                      # Python LSP
     typescript-language-server   # JS/TS LSP
     nixd                         # Nix LSP
+    rust-analyzer                # Rust LSP
     mpv                          # Media player backend for EMMS
     ffmpeg                       # Metadata tools
     cava                         # Audio visualizer backend
@@ -52,6 +53,7 @@
       embark-consult
       consult
       marginalia
+      elcord
 
       # Key discovery
       which-key
@@ -72,6 +74,8 @@
       nix-mode
       js2-mode
       typescript-mode
+      rust-mode
+      rustic
 
       # Common Lisp
       sly

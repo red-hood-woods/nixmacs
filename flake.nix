@@ -32,6 +32,7 @@
           configPkg = pkgs.runCommand "nixmacs-config" {} ''
             mkdir -p $out/share/emacs/site-lisp
             cp ${pkgs.writeText "default.el" emacsConfig} $out/share/emacs/site-lisp/default.el
+            cp ${./flutterice-theme.el} $out/share/emacs/site-lisp/flutterice-theme.el
           '';
 
           allEmacsPkgs = epkgs: (emacsPackages epkgs) ++ [ configPkg ];
